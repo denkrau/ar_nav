@@ -1,11 +1,17 @@
 #include "ar_nav/ar_nav.hpp"
 
 Ar_Nav::Ar_Nav() {
-	sub_marker_pose_ = nh.subscribe(marker_pose_topic, 1, markerPoseCallback, this);
-	pub_cf_pose_ = nh.advertise<geometry_msgs::PoseStamped>(cf_pose_topic, 1); 
+	ros::NodeHandle _nh("~");
+	std::string s;
+	_nh.param<std::string>("marker_pose_topic", s, "/marker_pose");
+	sub_marker_pose_ = nh.subscribe(s, 1, &Ar_Nav::markerPoseCallback, this);
+	//_nh.param<std::string>("cf_pose_topic", s, "/cf_pose");
+	pub_cf_pose_ = nh.advertise<geometry_msgs::PoseStamped>("cf_pose", 1);
+	_nh.param<std::string>("world_frame", world_frame, "world");
+	_nh.param<std::string>("cf_frame", cf_frame, "crazyflie");
 }
 
-void Ar_Nav::markerPoseCallback(const geomentry_msgs::PoseStamped &msg) {
+void Ar_Nav::markerPoseCallback(const geometry_msgs::PoseStamped &msg) {
 	try {
 		setCfPose(msg);
 		pub_cf_pose_.publish(msg);
@@ -31,7 +37,7 @@ void Ar_Nav::setCfPose(const geometry_msgs::PoseStamped &msg) {
 	//cf_pose(msg.header, msg.pose);
 	cf_pose.pose.position.x = msg.pose.position.y;
 	cf_pose.pose.position.y = msg.pose.position.x;
-    	cf_pose.pose.position.z = - msg.pose.position.z;
+    	cf_pose.pose.position.z = msg.pose.position.z;
 	cf_pose.pose.orientation.x = msg.pose.orientation.x;
 	cf_pose.pose.orientation.y = msg.pose.orientation.y;
 	cf_pose.pose.orientation.z = msg.pose.orientation.z;
@@ -65,10 +71,8 @@ void Ar_Nav::initializeCfPose() {
 
 int main(int argc, char** argv) {
 	ros::init(argc, argv, "ar_nav");
-	Cf_Nav node;
-	nh.param<std::string>("worldFrame", world_frame, "world";
-	nh.param<std::string>("cfFrame", cf_frame, "crazyflie");
-	initializeCfPose();
+	Ar_Nav node;
+	node.initializeCfPose();
 	while (node.nh.ok()) {
 		ros::spin();
 	}
