@@ -102,9 +102,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES ar_nav
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -112,9 +112,11 @@ catkin_package(
 ## Build ##
 ###########
 
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
+include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
@@ -124,20 +126,29 @@ include_directories(
 #   src/${PROJECT_NAME}/ar_nav.cpp
 # )
 
+set(AR_NAV_SOURCE_FILES
+	src/ar_nav.cpp
+)
+
+set(AR_NAV_HEADER_FILES
+	include/ar_nav/ar_nav.hpp
+)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(ar_nav ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(ar_nav_node src/ar_nav_node.cpp)
+#add_executable(ar_nav_node src/ar_nav_node.cpp)
+add_executable(ar_nav ${AR_NAV_SOURCE_FILES} ${AR_NAV_HEADER_FILES})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(ar_nav_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(ar_nav_node
+target_link_libraries(ar_nav ${catkin_LIBRARIES})
 #   ${catkin_LIBRARIES}
 # )
 
