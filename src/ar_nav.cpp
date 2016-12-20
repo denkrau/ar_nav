@@ -8,7 +8,7 @@ Ar_Nav::Ar_Nav() {
 void Ar_Nav::markerPoseCallback(const geomentry_msgs::PoseStamped &msg) {
 	try {
 		setCfPose(msg);
-		pub_cf_pose.publish(msg);
+		pub_cf_pose_.publish(msg);
 		sendCfPose();
 	}
 	catch (...) {
@@ -55,7 +55,7 @@ void Ar_Nav::initializeCfPose() {
 	      	cf_pose.pose.orientation.y = 0.0f;
 	      	cf_pose.pose.orientation.z = 0.0f;
 	      	cf_pose.pose.orientation.w = 1.0f;
-		pub_cf_pose.publish(cf_pose);
+		pub_cf_pose_.publish(cf_pose);
 		sendCfPose();
 	}
 	catch (...) {
