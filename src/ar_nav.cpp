@@ -28,16 +28,15 @@ void Ar_Nav::sendCfPose() {
 }
 
 void Ar_Nav::setCfPose(const geometry_msgs::PoseStamped &msg) {
-	cf_pose(msg.header, msg.pose);
-/*
+	//cf_pose(msg.header, msg.pose);
 	cf_pose.pose.position.x = msg.pose.position.y;
 	cf_pose.pose.position.y = msg.pose.position.x;
-    	cf_pose.pose.position.z = msg.pose.position.z;
+    	cf_pose.pose.position.z = - msg.pose.position.z;
 	cf_pose.pose.orientation.x = msg.pose.orientation.x;
 	cf_pose.pose.orientation.y = msg.pose.orientation.y;
 	cf_pose.pose.orientation.z = msg.pose.orientation.z;
 	cf_pose.pose.orientation.w = msg.pose.orientation.w;
-*/
+
 	tfScalar roll, pitch, yaw;
     	tf::Matrix3x3(tf::Quaternion(cf_pose.pose.orientation.x, cf_pose.pose.orientation.y, cf_pose.pose.orientation.z, cf_pose.pose.orientation.w)).getRPY(roll, pitch, yaw);
 	ROS_INFO_STREAM("setCfPose: " << cf_pose << "\n" << roll*180/3.141 << "\t" << pitch*180/3.141 << "\t" << yaw*180/3.141);
