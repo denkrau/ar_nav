@@ -9,6 +9,10 @@ Ar_Nav::Ar_Nav() {
 	pub_cf_pose_ = nh.advertise<geometry_msgs::PoseStamped>("cf_pose", 1);
 	_nh.param<std::string>("world_frame", world_frame, "world");
 	_nh.param<std::string>("cf_frame", cf_frame, "crazyflie");
+
+	ros::Rate rate(10);
+	while (pub_cf_pose_.getNumSubscribers() == 0)
+		rate.sleep();
 }
 
 void Ar_Nav::markerPoseCallback(const geometry_msgs::PoseStamped &msg) {
@@ -73,8 +77,8 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, "ar_nav");
 	Ar_Nav node;
 	node.initializeCfPose();
-	while (node.nh.ok()) {
+	//while (node.nh.ok()) {
 		ros::spin();
-	}
+	//}
 	return 0;
 }
