@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+	<!-- read arguments -->
+	<arg name="camera_width" default="720"/>
+	<arg name="camera_height" default="480"/>
+	<arg name="camera_device" default="/dev/video1"/>
+	<arg name="camera_fps" default="30"/>
+	<arg name="camera_calibration" default="file://$(find ar_nav)/data/crazyflie.yaml"/>
+	<arg name="image_undist" default="image_rect_color"/>
+
+	<!-- capture image -->
+	<node pkg="usb_cam" type="usb_cam_node" name="cam" output="screen" >
+		<param name="video_device" value="$(arg camera_device)" />
+		<param name="framerate" value="$(arg camera_fps)"/>
+		<param name="pixel_format" value="yuyv" />
+		<param name="image_width" value="$(arg camera_width)" />
+		<param name="image_height" value="$(arg camera_height)" />
+		<param name="camera_frame_id" value="cam" />
+		<param name="camera_name" value= "cam"/>
+		<param name="camera_info_url" value= "$(arg camera_calibration)"/>
+	</node>	
+
+
+	<!-- modify image -->
+	<node ns="cam" pkg="tud_img_prep" type="img_prep" name="img_prep" output="screen" >
+		<param name="camera_namespace" value="/cam" />
+	</node>
+
+	<!-- undistort image -->
+	<node ns="cam" pkg="image_proc" type="image_proc" name="image_proc" >
+		<remap from="image_raw" to="/prep/cam/image_raw" />
+		<remap from="camera_info" to="/prep/cam/camera_info" />
+	</node>
+
+</launch>

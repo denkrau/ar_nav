@@ -4,21 +4,20 @@ Ar_Nav::Ar_Nav() {
 	ros::NodeHandle _nh("~");
 	std::string s;
 	_nh.param<std::string>("marker_pose_topic", s, "/marker_pose");
-	sub_marker_pose_ = nh.subscribe(s, 1, &Ar_Nav::markerPoseCallback, this);
-	//_nh.param<std::string>("cf_pose_topic", s, "/cf_pose");
-	pub_cf_pose_ = nh.advertise<geometry_msgs::PoseStamped>("cf_pose", 1);
 	_nh.param<std::string>("world_frame", world_frame, "world");
 	_nh.param<std::string>("cf_frame", cf_frame, "crazyflie");
+	sub_marker_pose_ = nh.subscribe(s, 1, &Ar_Nav::markerPoseCallback, this);
+	pub_cf_pose_ = nh.advertise<geometry_msgs::PoseStamped>("cf_pose", 1);
 
 	ros::Rate rate(10);
-	while (pub_cf_pose_.getNumSubscribers() == 0)
+	while (pub_cf_pose_.getNumSubscribers() < 1)
 		rate.sleep();
 }
 
 void Ar_Nav::markerPoseCallback(const geometry_msgs::PoseStamped &msg) {
 	try {
 		setCfPose(msg);
-		pub_cf_pose_.publish(msg);
+		pub_cf_pose_.publish(cf_pose);
 		sendCfPose();
 	}
 	catch (...) {
@@ -28,9 +27,9 @@ void Ar_Nav::markerPoseCallback(const geometry_msgs::PoseStamped &msg) {
 
 void Ar_Nav::sendCfPose() {
 	try {
-	transform.setOrigin(tf::Vector3(cf_pose.pose.position.x, cf_pose.pose.position.y, cf_pose.pose.position.z));
-	transform.setRotation(tf::Quaternion(cf_pose.pose.orientation.x, cf_pose.pose.orientation.y, cf_pose.pose.orientation.z, cf_pose.pose.orientation.w));
-	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), world_frame, cf_frame));
+		transform.setOrigin(tf::Vector3(cf_pose.pose.position.x, cf_pose.pose.position.y, cf_pose.pose.position.z));
+		transform.setRotation(tf::Quaternion(cf_pose.pose.orientation.x, cf_pose.pose.orientation.y, cf_pose.pose.orientation.z, cf_pose.pose.orientation.w));
+		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), world_frame, cf_frame));
 	}
 	catch (...) {
 		ROS_ERROR("Failed to update frame relation");
@@ -49,7 +48,7 @@ void Ar_Nav::setCfPose(const geometry_msgs::PoseStamped &msg) {
 
 	tfScalar roll, pitch, yaw;
     	tf::Matrix3x3(tf::Quaternion(cf_pose.pose.orientation.x, cf_pose.pose.orientation.y, cf_pose.pose.orientation.z, cf_pose.pose.orientation.w)).getRPY(roll, pitch, yaw);
-	ROS_INFO_STREAM("setCfPose: " << cf_pose << "\n" << roll*180/3.141 << "\t" << pitch*180/3.141 << "\t" << yaw*180/3.141);
+	ROS_INFO_STREAM("setCfPose: " << cf_pose.pose.position.z /*<< "\n" << roll*180/3.141 << "\t" << pitch*180/3.141 << "\t" << yaw*180/3.141*/);
 
 }
 
@@ -77,8 +76,6 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, "ar_nav");
 	Ar_Nav node;
 	node.initializeCfPose();
-	//while (node.nh.ok()) {
-		ros::spin();
-	//}
+	ros::spin();
 	return 0;
 }

@@ -1,6 +1,6 @@
 image_width: 720
 image_height: 480
-camera_name: camera
+camera_name: cam
 camera_matrix:
   rows: 3
   cols: 3

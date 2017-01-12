@@ -13,6 +13,7 @@ class Ar_Nav {
 public:
 	Ar_Nav();
 	ros::NodeHandle nh;
+
 	// Functions
 	void markerPoseCallback(const geometry_msgs::PoseStamped &msg);
 	void sendCfPose();
