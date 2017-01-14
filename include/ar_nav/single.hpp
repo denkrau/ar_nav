@@ -1,5 +1,5 @@
-#ifndef AR_NAV_HPP
-#define AR_NAV_HPP
+#ifndef AR_NAV_SINGLE_HPP
+#define AR_NAV_SINGLE_HPP
 
 #include <ros/ros.h>
 #include <tf/tf.h>
@@ -8,10 +8,10 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/String.h>
 
-class Ar_Nav {
+class ArNavSingle {
 
 public:
-	Ar_Nav();
+	ArNavSingle();
 	ros::NodeHandle nh;
 
 	// Functions
@@ -35,4 +35,4 @@ private:
 	std::string world_frame;
 };
 
-#endif	// AR_NAV_HPP
+#endif	// AR_NAV_SINGLE_HPP

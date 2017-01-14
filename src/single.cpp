@@ -1,12 +1,12 @@
-#include "ar_nav/ar_nav.hpp"
+#include "ar_nav/single.hpp"
 
-Ar_Nav::Ar_Nav() {
+ArNavSingle::ArNavSingle() {
 	ros::NodeHandle _nh("~");
 	std::string s;
 	_nh.param<std::string>("marker_pose_topic", s, "/marker_pose");
 	_nh.param<std::string>("world_frame", world_frame, "world");
 	_nh.param<std::string>("cf_frame", cf_frame, "crazyflie");
-	sub_marker_pose_ = nh.subscribe(s, 1, &Ar_Nav::markerPoseCallback, this);
+	sub_marker_pose_ = nh.subscribe(s, 1, &ArNavSingle::markerPoseCallback, this);
 	pub_cf_pose_ = nh.advertise<geometry_msgs::PoseStamped>("cf_pose", 1);
 
 	ros::Rate rate(10);
@@ -14,7 +14,7 @@ Ar_Nav::Ar_Nav() {
 		rate.sleep();
 }
 
-void Ar_Nav::markerPoseCallback(const geometry_msgs::PoseStamped &msg) {
+void ArNavSingle::markerPoseCallback(const geometry_msgs::PoseStamped &msg) {
 	try {
 		setCfPose(msg);
 		pub_cf_pose_.publish(cf_pose);
@@ -25,7 +25,7 @@ void Ar_Nav::markerPoseCallback(const geometry_msgs::PoseStamped &msg) {
 	}
 }
 
-void Ar_Nav::sendCfPose() {
+void ArNavSingle::sendCfPose() {
 	try {
 		transform.setOrigin(tf::Vector3(cf_pose.pose.position.x, cf_pose.pose.position.y, cf_pose.pose.position.z));
 		transform.setRotation(tf::Quaternion(cf_pose.pose.orientation.x, cf_pose.pose.orientation.y, cf_pose.pose.orientation.z, cf_pose.pose.orientation.w));
@@ -36,7 +36,7 @@ void Ar_Nav::sendCfPose() {
 	}
 }
 
-void Ar_Nav::setCfPose(const geometry_msgs::PoseStamped &msg) {
+void ArNavSingle::setCfPose(const geometry_msgs::PoseStamped &msg) {
 	//cf_pose(msg.header, msg.pose);
 	cf_pose.pose.position.x = msg.pose.position.y;
 	cf_pose.pose.position.y = msg.pose.position.x;
@@ -52,7 +52,7 @@ void Ar_Nav::setCfPose(const geometry_msgs::PoseStamped &msg) {
 
 }
 
-void Ar_Nav::initializeCfPose() {
+void ArNavSingle::initializeCfPose() {
 	try {
 		cf_pose.header.seq = 0;
 		cf_pose.header.stamp = ros::Time::now();
@@ -73,8 +73,8 @@ void Ar_Nav::initializeCfPose() {
 }
 
 int main(int argc, char** argv) {
-	ros::init(argc, argv, "ar_nav");
-	Ar_Nav node;
+	ros::init(argc, argv, "single");
+	ArNavSingle node;
 	node.initializeCfPose();
 	ros::spin();
 	return 0;
