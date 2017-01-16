@@ -8,27 +8,36 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/String.h>
+#include <std_srvs/Empty.h>
 
 class ArNavMulti {
 
 public:
 	ArNavMulti();
-	ros::NodeHandle m_nh;
+	ros::NodeHandle nh;
 
 	// Functions
 	void sendCfPose();
 	void setCfPose(const geometry_msgs::TransformStamped &msg);
 	void initializeCfPose();
+	bool onNextWaypoint(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+	bool onPrevWaypoint(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+
 
 private:
 	// Functions
 	void markerPoseCallback(const geometry_msgs::TransformStamped &msg);
+	void setWaypoint(int waypoint_offset);
 
 	// Subscribers
 	ros::Subscriber m_marker_pose_sub;
 
 	// Publisher
 	ros::Publisher m_cf_pose_pub;
+
+	// Services
+	ros::ServiceServer m_next_waypoint_srv;
+	ros::ServiceServer m_prev_waypoint_srv;
 
 	// Variables
 	tf::Transform m_transform;

@@ -79,7 +79,7 @@
 	</node>
 
 	<!-- marker navigation-->
-	<node pkg="ar_nav" type="ar_nav" name="ar_nav" output="screen">
+	<node pkg="ar_nav" type="single" name="single" output="screen">
 		<param name="marker_pose_topic" value="ar_single_board/pose" />
 	</node>
 

@@ -2,14 +2,16 @@
 
 ArNavMulti::ArNavMulti() {
 	// initialize topics
-	ros::NodeHandle nh("~");
+	ros::NodeHandle n("~");
 	std::string s;
-	nh.param<std::string>("marker_pose_topic", s, "/marker_pose");
-	nh.param<std::string>("world_frame", m_world_frame, "world");
-	nh.param<std::string>("cf_frame", m_cf_frame, "crazyflie");
-	nh.param<std::string>("waypoints", m_waypoints, "board_c3po");
-	m_marker_pose_sub = m_nh.subscribe(s, 1, &ArNavMulti::markerPoseCallback, this);
-	m_cf_pose_pub = m_nh.advertise<geometry_msgs::PoseStamped>("cf_pose", 1);
+	n.param<std::string>("marker_pose_topic", s, "/marker_pose");
+	n.param<std::string>("world_frame", m_world_frame, "world");
+	n.param<std::string>("cf_frame", m_cf_frame, "crazyflie");
+	n.param<std::string>("waypoints", m_waypoints, "board_c3po");
+	m_marker_pose_sub = nh.subscribe(s, 1, &ArNavMulti::markerPoseCallback, this);
+	m_cf_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("cf_pose", 1);
+	m_next_waypoint_srv = nh.advertiseService("next_waypoint", &ArNavMulti::onNextWaypoint, this);
+	m_prev_waypoint_srv = nh.advertiseService("prev_waypoint", &ArNavMulti::onPrevWaypoint, this);
 
 	m_current_waypoint_id = 0;
 
@@ -19,7 +21,7 @@ ArNavMulti::ArNavMulti() {
 	while (getline(ss, tok, '|')) {
 		m_waypoint_list.push_back(tok);
 	}
-
+	
 	// wait for active connections
 	ros::Rate rate(10);
 	while (m_cf_pose_pub.getNumSubscribers() < 1)
@@ -102,6 +104,24 @@ void ArNavMulti::initializeCfPose() {
 	}
 	catch (...) {
 		ROS_WARN("Could not initialize crazyflie frame");
+	}
+}
+
+bool ArNavMulti::onNextWaypoint(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
+	setWaypoint(1);
+}
+
+
+bool ArNavMulti::onPrevWaypoint(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
+	setWaypoint(-1);
+}
+
+void ArNavMulti::setWaypoint(int waypoint_offset) {
+	int tmp_id = m_current_waypoint_id + waypoint_offset;
+	if (tmp_id >= 0 && tmp_id < m_waypoint_list.size()) {
+		m_current_waypoint_id += waypoint_offset;
+	} else {
+		m_current_waypoint_id = tmp_id % m_waypoint_list.size();
 	}
 }
 
