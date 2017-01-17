@@ -1,4 +1,4 @@
 %YAML:1.0
 ar_sys_boards:
-   - { name:"/board1", path:"board_c3po.yml", marker_size:0.13 }
-   - { name:"/board2", path:"board2.yml", marker_size:0.182 }
+   - { name:"/c3po", path:"board_c3po.yml", marker_size:0.13 }
+   - { name:"/r2d2", path:"board_r2d2.yml", marker_size:0.186 }
