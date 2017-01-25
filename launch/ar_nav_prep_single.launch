@@ -4,7 +4,7 @@
 	<!-- read arguments -->
 	<arg name="camera_width" default="720"/>
 	<arg name="camera_height" default="480"/>
-	<arg name="camera_device" default="/dev/video0"/>
+	<arg name="camera_device" default="/dev/video1"/>
 	<arg name="camera_fps" default="30"/>
 	<arg name="camera_calibration" default="file://$(find ar_nav)/data/crazyflie.yaml"/>
 	<arg name="image_undist" default="image_rect_color"/>
@@ -15,15 +15,15 @@
 	<arg name="cf_use_controller" default="true"/>
 	
 	<!-- image preparation - reducing interlace -->
-	<!-- <node pkg="tud_img_prep" type="img_prep" name="img_prep">
+	<node pkg="tud_img_prep" type="img_prep" name="img_prep">
 		<param name="deinterlace_method" value="5" />
 		<param name="equalization_method" value="0" />	
 	</node>
-	-->
+
 	<!-- undistort image -->
 	<node ns="cam" pkg="image_proc" type="image_proc" name="image_procg">
-		<remap from="image_raw" to="/cam/image_raw"/>
-		<remap from="camera_info" to="/cam/camera_info"/>
+		<remap from="image_raw" to="/prep/cam/image_raw"/>
+		<remap from="camera_info" to="/prep/cam/camera_info"/>
 	</node>
 
 	<!-- capture image -->
@@ -56,7 +56,7 @@
 
 		<param name="image_is_rectified" type="bool" value="true"/>
 		<param name="marker_size" type="double" value="0.186"/>
-		<param name="board_config" type="string" value="$(find ar_nav)/data/board_r2d2.yml"/>
+		<param name="board_config" type="string" value="$(find ar_nav)/data/board_bb8.yml"/>
 		<param name="board_frame" type="string" value="/board1" />
 		<param name="draw_markers" type="bool" value="false" />
 		<param name="draw_markers_cube" type="bool" value="true" />
@@ -77,7 +77,6 @@
 		<arg name="uri" value="$(arg cf_uri)" />
      		<param name="dev" value="$(arg cf_joy_dev)" />
 		<param name="use_crazyflie_controller" value="$(arg cf_use_controller)"/>
-		<param name="use_waypoints" value="false" />
 	</include>
 
 	<!-- initialize controller of quadropcopter -->

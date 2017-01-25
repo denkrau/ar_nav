@@ -35,6 +35,8 @@ private:
 	// Publisher
 	ros::Publisher m_cf_pose_pub;
 
+	ros::Publisher debug_pose_pub;
+
 	// Services
 	ros::ServiceServer m_next_waypoint_srv;
 	ros::ServiceServer m_prev_waypoint_srv;

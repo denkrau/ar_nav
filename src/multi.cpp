@@ -14,6 +14,8 @@ ArNavMulti::ArNavMulti() {
 	m_next_waypoint_srv = nh.advertiseService("next_waypoint", &ArNavMulti::onNextWaypoint, this);
 	m_prev_waypoint_srv = nh.advertiseService("prev_waypoint", &ArNavMulti::onPrevWaypoint, this);
 
+	debug_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("debug_pose", 1); // DEBUG
+
 	m_current_waypoint_id = 0;
 	m_step_active = false;
 
@@ -37,11 +39,14 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 		// SOLUTION1: get all poses, send correct one if true, else send nearest one
 		// wait for right TransformStamped
 		if (!bt.child_frame_id.std::string::compare("/" + m_waypoint_list[m_current_waypoint_id])) {
+			setCfPose(bt);
+			debug_pose_pub.publish(m_cf_pose);
 			float distance = sqrt(pow(bt.transform.translation.x, 2) + pow(bt.transform.translation.y, 2));
 			if (m_step_active) {
-				ROS_WARN("Stepping to target");
+				ROS_WARN_STREAM("Stepping to target: " << m_waypoint_list[m_current_waypoint_id]);
 				// linear target change
-				float step_size = 0.2;
+				float step_size = 0.05;
+				float step_range = 0.15;
 				geometry_msgs::TransformStamped step;
 				step.header = bt.header;
 				step.child_frame_id = bt.child_frame_id;
@@ -54,8 +59,11 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 				//linear.transform.rotation.z = 
 				//linear.transform.rotation.w = 
 				setCfPose(step);
-				if (abs(step.transform.translation.x) < 0.2 && abs(step.transform.translation.y) < 0.2)
+				ROS_INFO_STREAM(step.transform.translation << "\n" << bt.transform.translation);
+				if ((bt.transform.translation.x < step_range && bt.transform.translation.x > -step_range) && (bt.transform.translation.y < step_range && bt.transform.translation.y > -step_range)) {
+					//ROS_WARN("Deactivate stepping");
 					m_step_active = false;
+				}
 			} else {
 				setCfPose(bt);
 			}
@@ -66,13 +74,17 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 
 			// if CF stays in range of marker, next one is targeted
 			if (!m_waypoint_change.std::string::compare("auto")) {
-				if ((distance < 0.15 && distance > -0.15) && m_next_waypoint_timeout.isValid()) {
-					ros::Duration timeout(3.0);
+				float timeout_range = 0.15;								// 0.05 at 0.7m height
+				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout.isValid()) {
+					ros::Duration timeout(4.0);
 					if (ros::Time::now() - m_next_waypoint_timeout > timeout) {
+					/*
 						if (m_current_waypoint_id == m_waypoint_list.size() - 1)
 							m_current_waypoint_id = 0;
 						else
 							m_current_waypoint_id++;
+					*/
+						setWaypoint(1);
 					}
 				}
 				else
