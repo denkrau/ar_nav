@@ -27,7 +27,8 @@ public:
 private:
 	// Functions
 	void markerPoseCallback(const geometry_msgs::TransformStamped &msg);
-	void setWaypoint(int waypoint_offset);
+	void setWaypoint();
+	void requestWaypoint(int waypoint_offset);
 
 	// Subscribers
 	ros::Subscriber m_marker_pose_sub;
@@ -52,8 +53,10 @@ private:
 	std::vector<std::string> m_waypoint_list;
 	std::string m_waypoints;
 	int m_current_waypoint_id;
+	int m_requested_waypoint_id;
 	ros::Time m_next_waypoint_timeout;
 	bool m_step_active;
+	bool m_request_active;
 };
 
 #endif	// AR_NAV_MULTI_HPP

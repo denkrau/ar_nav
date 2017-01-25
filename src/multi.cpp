@@ -17,7 +17,9 @@ ArNavMulti::ArNavMulti() {
 	debug_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("debug_pose", 1); // DEBUG
 
 	m_current_waypoint_id = 0;
+	m_requested_waypoint_id = 0;
 	m_step_active = false;
+	m_request_active = false;
 
 	// split m_waypoints in each waypoint and store in vector 
 	std::stringstream ss(m_waypoints);
@@ -35,8 +37,10 @@ ArNavMulti::ArNavMulti() {
 
 void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 	try {
-		// TODO: what happens if correct marker is not found
-		// SOLUTION1: get all poses, send correct one if true, else send nearest one
+		// if requested waypoint is found, target it
+		if (m_request_active && !bt.child_frame_id.std::string::compare("/" + m_waypoint_list[m_requested_waypoint_id])) {
+			setWaypoint();
+		}
 		// wait for right TransformStamped
 		if (!bt.child_frame_id.std::string::compare("/" + m_waypoint_list[m_current_waypoint_id])) {
 			setCfPose(bt);
@@ -75,7 +79,7 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 			// if CF stays in range of marker, next one is targeted
 			if (!m_waypoint_change.std::string::compare("auto")) {
 				float timeout_range = 0.15;								// 0.05 at 0.7m height
-				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout.isValid()) {
+				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout.isValid() && !m_request_active) {
 					ros::Duration timeout(4.0);
 					if (ros::Time::now() - m_next_waypoint_timeout > timeout) {
 					/*
@@ -84,7 +88,7 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 						else
 							m_current_waypoint_id++;
 					*/
-						setWaypoint(1);
+						requestWaypoint(1);
 					}
 				}
 				else
@@ -148,23 +152,29 @@ void ArNavMulti::initializeCfPose() {
 }
 
 bool ArNavMulti::onNextWaypoint(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
-	ROS_INFO_STREAM("Target next waypoint");
-	setWaypoint(1);
+	ROS_INFO_STREAM("Request next waypoint");
+	requestWaypoint(1);
 }
 
 
 bool ArNavMulti::onPrevWaypoint(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
-	ROS_INFO_STREAM("Target previous waypoint");
-	setWaypoint(-1);
+	ROS_INFO_STREAM("Request previous waypoint");
+	requestWaypoint(-1);
 }
 
-void ArNavMulti::setWaypoint(int waypoint_offset) {
+void ArNavMulti::setWaypoint() {
 	m_step_active = true;
-	int tmp_id = m_current_waypoint_id + waypoint_offset;
+	m_request_active = false;
+	m_current_waypoint_id = m_requested_waypoint_id;
+}
+
+void ArNavMulti::requestWaypoint(int waypoint_offset) {
+	m_request_active = true;
+	int tmp_id = m_requested_waypoint_id + waypoint_offset;
 	if (tmp_id >= 0 && tmp_id < m_waypoint_list.size()) {
-		m_current_waypoint_id += waypoint_offset;
+		m_requested_waypoint_id += waypoint_offset;
 	} else {
-		m_current_waypoint_id = tmp_id % m_waypoint_list.size();
+		m_requested_waypoint_id = tmp_id % m_waypoint_list.size();
 	}
 }
 
