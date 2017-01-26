@@ -35,6 +35,8 @@ private:
 	// Publisher
 	ros::Publisher m_cf_pose_pub;
 
+	ros::Publisher debug_pose_pub;
+
 	// Services
 	ros::ServiceServer m_next_waypoint_srv;
 	ros::ServiceServer m_prev_waypoint_srv;
@@ -46,10 +48,12 @@ private:
 	std::string m_cf_frame;
 	std::string m_world_frame;
 	std::string m_next_waypoint;
+	std::string m_waypoint_change;
 	std::vector<std::string> m_waypoint_list;
 	std::string m_waypoints;
 	int m_current_waypoint_id;
 	ros::Time m_next_waypoint_timeout;
+	bool m_step_active;
 };
 
 #endif	// AR_NAV_MULTI_HPP
