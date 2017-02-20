@@ -17,6 +17,7 @@ ArNavMulti::ArNavMulti() {
 	debug_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("debug_pose", 1); // DEBUG
 
 	m_current_waypoint_id = 0;
+	m_next_waypoint_timeout = ros::Time(0.0);
 	m_step_active = false;
 
 	// split m_waypoints in each waypoint and store in vector 
@@ -70,7 +71,7 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 			// if CF stays in range of marker, next one is targeted
 			if (!m_waypoint_change.std::string::compare("auto")) {
 				float timeout_range = 0.15;								// 0.05 at 0.7m height
-				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout.isValid()) {
+				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout != ros::Time(0.0) ) {
 					ros::Duration timeout(4.0);
 					if (ros::Time::now() - m_next_waypoint_timeout > timeout) {
 						setWaypoint(1);
