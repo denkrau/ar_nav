@@ -20,7 +20,8 @@ ArNavMulti::ArNavMulti() {
 	m_requested_waypoint_id = 0;
 	m_step_active = false;
 	m_request_active = false;
-
+	m_next_waypoint_timeout = ros::Time(0.0);
+  
 	// split m_waypoints in each waypoint and store in vector 
 	std::stringstream ss(m_waypoints);
 	std::string tok;
@@ -41,6 +42,7 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 		if (m_request_active && !bt.child_frame_id.std::string::compare("/" + m_waypoint_list[m_requested_waypoint_id])) {
 			setWaypoint();
 		}
+
 		// wait for right TransformStamped
 		if (!bt.child_frame_id.std::string::compare("/" + m_waypoint_list[m_current_waypoint_id])) {
 			setCfPose(bt);
@@ -58,14 +60,9 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 				step.transform.translation.y = bt.transform.translation.y * step_size / distance;
 				step.transform.translation.z = bt.transform.translation.z;
 				step.transform.rotation = bt.transform.rotation;
-				//linear.transform.rotation.x = 
-				//linear.transform.rotation.y = 
-				//linear.transform.rotation.z = 
-				//linear.transform.rotation.w = 
 				setCfPose(step);
 				ROS_INFO_STREAM(step.transform.translation << "\n" << bt.transform.translation);
 				if ((bt.transform.translation.x < step_range && bt.transform.translation.x > -step_range) && (bt.transform.translation.y < step_range && bt.transform.translation.y > -step_range)) {
-					//ROS_WARN("Deactivate stepping");
 					m_step_active = false;
 				}
 			} else {
@@ -79,15 +76,9 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 			// if CF stays in range of marker, next one is targeted
 			if (!m_waypoint_change.std::string::compare("auto")) {
 				float timeout_range = 0.15;								// 0.05 at 0.7m height
-				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout.isValid() && !m_request_active) {
+				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout != ros::Time(0.0) && !m_request_active) {
 					ros::Duration timeout(4.0);
 					if (ros::Time::now() - m_next_waypoint_timeout > timeout) {
-					/*
-						if (m_current_waypoint_id == m_waypoint_list.size() - 1)
-							m_current_waypoint_id = 0;
-						else
-							m_current_waypoint_id++;
-					*/
 						requestWaypoint(1);
 					}
 				}
@@ -120,15 +111,13 @@ void ArNavMulti::setCfPose(const geometry_msgs::TransformStamped &bt) {
 	m_cf_pose.pose.position.x = bt.transform.translation.y;
 	m_cf_pose.pose.position.y = bt.transform.translation.x;
 	m_cf_pose.pose.position.z = bt.transform.translation.z;
-	m_cf_pose.pose.orientation.x = bt.transform.rotation.x;
-	m_cf_pose.pose.orientation.y = bt.transform.rotation.y;
+	m_cf_pose.pose.orientation.x = bt.transform.rotation.y;
+	m_cf_pose.pose.orientation.y = bt.transform.rotation.x;
 	m_cf_pose.pose.orientation.z = bt.transform.rotation.z;
 	m_cf_pose.pose.orientation.w = bt.transform.rotation.w;
 
 	tfScalar roll, pitch, yaw;
     	tf::Matrix3x3(tf::Quaternion(m_cf_pose.pose.orientation.x, m_cf_pose.pose.orientation.y, m_cf_pose.pose.orientation.z, m_cf_pose.pose.orientation.w)).getRPY(roll, pitch, yaw);
-	ROS_INFO_STREAM("setCfPose: " << m_cf_pose.pose.position.z /*<< "\n" << roll*180/3.141 << "\t" << pitch*180/3.141 << "\t" << yaw*180/3.141*/);
-
 }
 
 void ArNavMulti::initializeCfPose() {
