@@ -14,7 +14,7 @@ ArNavMulti::ArNavMulti() {
 	m_next_waypoint_srv = nh.advertiseService("next_waypoint", &ArNavMulti::onNextWaypoint, this);
 	m_prev_waypoint_srv = nh.advertiseService("prev_waypoint", &ArNavMulti::onPrevWaypoint, this);
 
-	debug_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("debug_pose", 1); // DEBUG
+	debug_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("debug_pose", 1); // DEBUG, containing current markers pose (without stepping)
 
 	m_current_waypoint_id = 0;
 	m_requested_waypoint_id = 0;
@@ -75,7 +75,7 @@ void ArNavMulti::markerPoseCallback(const geometry_msgs::TransformStamped &bt) {
 
 			// if CF stays in range of marker, next one is targeted
 			if (!m_waypoint_change.std::string::compare("auto")) {
-				float timeout_range = 0.15;								// 0.05 at 0.7m height
+				float timeout_range = 0.15;
 				if ((distance < timeout_range && distance > -timeout_range) && m_next_waypoint_timeout != ros::Time(0.0) && !m_request_active) {
 					ros::Duration timeout(4.0);
 					if (ros::Time::now() - m_next_waypoint_timeout > timeout) {
