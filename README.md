@@ -9,7 +9,7 @@ catkin_make ar_nav
 ```
 This builds two nodes. The correct node for hovering is `single` and for waypoint navigation `multi`.
 
-## Dependecies (non-native)
+## Dependencies (non-native)
 The following packages are necessary in order to run `ar_nav` properly:
 - ar_nav
 - crazyflie_ros
