@@ -35,7 +35,7 @@ roslaunch ar_nav ar_nav_prep_multi.launch
 
 ## Interaction
 ### Subscriber
-- marker_pose <geometry_msgs::TransformStamped> (in `single` <geometry_msgs::PoseStamped>)
+- marker_pose `<geometry_msgs::TransformStamped>` (in `single` `<geometry_msgs::PoseStamped>`)
 
 ### Publisher
 - cf_pose
@@ -46,8 +46,8 @@ roslaunch ar_nav ar_nav_prep_multi.launch
 - prev_waypoint
 
 ### Parameter
-- marker_pose_topic <std::string>
-- world_frame <std::string>
-- cf_frame <std::string>
-- waypoints <std::string> (seperated by `|`)
-- method <std::string> (either `auto` or `manual`)
+- marker_pose_topic `<std::string>`
+- world_frame `<std::string>`
+- cf_frame `<std::string>`
+- waypoints `<std::string>` (seperated by `|`)
+- method `<std::string>` (either `auto` or `manual`)
