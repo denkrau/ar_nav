@@ -2,7 +2,7 @@
 A ROS package offering an autonomous flight including waypoint navigation with a quadcopter using ArUco markers
 
 ## Installation
-Clone repository and and compile it
+Clone repository and compile it
 ```
 git clone https://github.com/denkrau/ar_nav.git
 catkin_make ar_nav
@@ -38,12 +38,12 @@ roslaunch ar_nav ar_nav_prep_multi.launch
 - marker_pose `<geometry_msgs::TransformStamped>` (in `single` `<geometry_msgs::PoseStamped>`)
 
 ### Publisher
-- cf_pose
-- debug_pose
+- cf_pose `<geometry_msgs::PoseStamped>`
+- debug_pose `<geometry_msgs::PoseStamped>`
 
 ### Services
-- next_waypoint
-- prev_waypoint
+- next_waypoint `<std_srvs::Empty::Request&, std_srvs::Empty::Response&>`
+- prev_waypoint `<std_srvs::Empty::Request&, std_srvs::Empty::Response&>`
 
 ### Parameter
 - marker_pose_topic `<std::string>`
