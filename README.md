@@ -33,6 +33,8 @@ or
 roslaunch ar_nav ar_nav_prep_multi.launch
 ```
 
+For optimal functionality use this package in combination with [modified crazyflie_ros](https://github.com/denkrau/crazyflie_ros). 
+
 ## Interaction
 ### Subscriber
 - marker_pose `<geometry_msgs::TransformStamped>` (in `single` `<geometry_msgs::PoseStamped>`)
